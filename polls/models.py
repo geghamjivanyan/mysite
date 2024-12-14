@@ -29,3 +29,14 @@ class PollUser(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE)
     country = models.CharField(max_length=50)
 
+class UserLog(models.Model):
+    actions = [
+        ('login', "Login Successfully"),
+        ('question', "Look question list"),
+        ('vote', "Vote a question"),
+        ('detail', 'View single question info')
+    ]
+
+    user = models.ForeignKey(PollUser, on_delete=models.CASCADE)
+    action_time = models.DateTimeField()
+    action = models.CharField(choices=actions, max_length=20)

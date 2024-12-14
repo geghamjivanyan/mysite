@@ -8,10 +8,10 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as _login, logout as _logout
-
+from datetime import datetime
 
 #
-from .models import Choice, Question, PollUser
+from .models import Choice, Question, PollUser, UserLog
 
 def index(request):
     if request.user.is_authenticated:
@@ -20,14 +20,20 @@ def index(request):
             "latest_question_list": latest_question_list,
             "user": request.user
         }
+        usr = PollUser.objects.get(user=request.user)
+        log = UserLog(user=usr, action_time=datetime.now(), action='question')
+        log.save()
         return render(request, "polls/index.html", context)
     else:
         return HttpResponseRedirect('/polls/login')
 
 def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, "polls/detail.html", {"question": question})
-
+    if request.user.is_authenticated:
+        question = get_object_or_404(Question, pk=question_id)
+        return render(request, "polls/detail.html", {"question": question})
+    else:
+        return HttpResponseRedirect('/polls/login')
+    
 def results(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     return render(request, "polls/results.html", {"question": question})
@@ -98,6 +104,9 @@ def login(request):
     print("USER", email, password)
     if user:
         _login(request, user)
+        usr = PollUser.objects.get(user=user)
+        log = UserLog(user=usr, action_time=datetime.now(), action='login')
+        log.save()
         return HttpResponseRedirect('/polls/')
 
     else:
