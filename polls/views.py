@@ -15,10 +15,12 @@ from .models import Choice, Question, PollUser, UserLog
 
 def index(request):
     if request.user.is_authenticated:
-        latest_question_list = Question.objects.order_by("-pub_date")[:5]
+        my_questions = Question.objects.filter(author__user=request.user).order_by("-pub_date")
+        other_questions = Question.objects.exclude(author__user=request.user).order_by("-pub_date")
         context = {
-            "latest_question_list": latest_question_list,
-            "user": request.user
+            "my_questions": my_questions,
+            "other_questions": other_questions,
+            "user": request.user,
         }
         usr = PollUser.objects.get(user=request.user)
         log = UserLog(user=usr, action_time=datetime.now(), action='question')
@@ -30,7 +32,10 @@ def index(request):
 def detail(request, question_id):
     if request.user.is_authenticated:
         question = get_object_or_404(Question, pk=question_id)
-        return render(request, "polls/detail.html", {"question": question})
+        if question.author.user == request.user:
+            return render(request, "polls/results.html", {"question": question})
+        else:
+            return render(request, "polls/detail.html", {"question": question})
     else:
         return HttpResponseRedirect('/polls/login')
     
@@ -116,3 +121,25 @@ def login(request):
 def logout(request):
     _logout(request)
     return HttpResponseRedirect("/polls/login")
+
+
+def add_question(request):
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            return render(request, "polls/add_question.html", {})
+        
+        else:
+            user = request.user
+            puser = PollUser.objects.get(user=user)
+            question_text = request.POST["question"]
+
+            q = Question(author=puser,
+                    question_text=question_text, 
+                    pub_date=datetime.now()
+                )
+            q.save()
+            return HttpResponseRedirect("/polls/" + str(q.id))
+
+
+    else:
+        return HttpResponseRedirect("/polls/login")    

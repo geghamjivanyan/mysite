@@ -5,7 +5,14 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 
 # Create your models here.
+
+
+class PollUser(models.Model):
+    user = models.OneToOneField(User, on_delete = models.CASCADE)
+    country = models.CharField(max_length=50)
+
 class Question(models.Model):
+    author = models.ForeignKey(PollUser, on_delete=models.CASCADE, null=True, blank=True)
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField("date published")
 
@@ -24,10 +31,6 @@ class Choice(models.Model):
     def __str__(self):
         return "{} | {} - {}".format(self.id, self.choice_text, self.votes)
     
-
-class PollUser(models.Model):
-    user = models.OneToOneField(User, on_delete = models.CASCADE)
-    country = models.CharField(max_length=50)
 
 class UserLog(models.Model):
     actions = [

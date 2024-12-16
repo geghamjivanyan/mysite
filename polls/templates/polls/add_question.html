@@ -1,0 +1,11 @@
+
+<form action="{% url 'polls:add_question' %}" method="post">
+    {% csrf_token %}
+    <legend><h1>Add New Question</h1></legend>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}    
+  
+    <input type="text" name="question" id="question" value="" placeholder="Question text">
+    <br>
+     
+    <input type="submit" value="Add">
+</form>

@@ -1,16 +1,33 @@
 <h1>Welcome {{user.first_name}} {{ user.last_name}}</h1>
-{% if latest_question_list %}
+
+<h2>My Questions</h2>
+{% if my_questions %}
     <ul>
-    {% for question in latest_question_list %}
+    {% for question in my_questions %}
         <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
-    <p>No polls are available.</p>
+    <p>You have not created any questions yet!</p>
+{% endif %}
+<br>
+<br>
+<h2>Other Questions</h2>
+{% if other_questions %}
+    <ul>
+    {% for question in other_questions %}
+        <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>There is not any external questions</p>
 {% endif %}
 
 <br>
 <br>
 <br>
 <a href="{% url 'polls:logout' %}">logout</a>
+<br>
+
+<a href="{% url 'polls:add_question'%}">Add New Question</a>
 
