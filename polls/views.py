@@ -33,9 +33,9 @@ def detail(request, question_id):
     if request.user.is_authenticated:
         question = get_object_or_404(Question, pk=question_id)
         if question.author.user == request.user:
-            return render(request, "polls/results.html", {"question": question})
+            return render(request, "polls/results.html", {"question": question, "is_author": True})
         else:
-            return render(request, "polls/detail.html", {"question": question})
+            return render(request, "polls/detail.html", {"question": question, "is_author": False})
     else:
         return HttpResponseRedirect('/polls/login')
     
